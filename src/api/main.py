@@ -20,9 +20,12 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.classification import gl_model
@@ -64,6 +67,16 @@ app = FastAPI(
     description="Document routing, GL categorization, and grounded tax research.",
     lifespan=lifespan,
 )
+
+STATIC_DIR = Path(__file__).parent / "static"
+
+
+@app.get("/", include_in_schema=False)
+def frontend() -> FileResponse:
+    return FileResponse(STATIC_DIR / "index.html")
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class CategorizeRequest(BaseModel):
