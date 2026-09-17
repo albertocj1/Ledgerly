@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Accounting Document Intelligence</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2e38;
+    --text: #e6e8ec;
+    --muted: #9aa1ac;
+    --accent: #5b8cff;
+    --good: #3ecf8e;
+    --warn: #f5b544;
+    --bad: #f5636e;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 24px 32px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  #health-badge {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  #health-badge.ok { color: var(--good); border-color: var(--good); }
+  #health-badge.bad { color: var(--bad); border-color: var(--bad); }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 780px) {
+    main { grid-template-columns: 1fr; padding: 16px; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card h2 {
+    margin: 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(91,140,255,0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .card p.hint { margin: 0; color: var(--muted); font-size: 12px; }
+  label { font-size: 12px; color: var(--muted); }
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: #0c0e12;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea { min-height: 90px; font-family: var(--mono); }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row > * { flex: 1; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  pre.output {
+    margin: 0;
+    background: #0c0e12;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 260px;
+    overflow: auto;
+    min-height: 36px;
+    color: var(--muted);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+  .badge.ok { background: rgba(62,207,142,0.15); color: var(--good); }
+  .badge.warn { background: rgba(245,181,68,0.15); color: var(--warn); }
+  .full { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Accounting Document Intelligence</h1>
+  <p>Document routing, GL categorization, and grounded tax research — try the API live.</p>
+  <span id="health-badge">checking...</span>
+</header>
+
+<main>
+
+  <section class="card">
+    <h2>Categorize a transaction <span class="tag">POST /categorize</span></h2>
+    <p class="hint">Assigns a GL account to a memo line, with abstention below the confidence threshold.</p>
+    <label>Memo</label>
+    <input type="text" id="cat-memo" value="AMZN MKTP US*2H4TY" />
+    <label>Confidence threshold: <span id="cat-threshold-val">0.70</span></label>
+    <input type="range" id="cat-threshold" min="0" max="1" step="0.05" value="0.7" />
+    <button id="cat-btn">Categorize</button>
+    <pre class="output" id="cat-output">Result will appear here.</pre>
+  </section>
+
+  <section class="card">
+    <h2>Batch categorize <span class="tag">POST /categorize/batch</span></h2>
+    <p class="hint">One memo per line.</p>
+    <textarea id="batch-memos">AMZN MKTP US*2H4TY
+DELTA AIR LINES #4821
+WELLS FARGO SVC CHG
+ZZQQ UNKNOWN VENDOR 99</textarea>
+    <button id="batch-btn">Categorize batch</button>
+    <pre class="output" id="batch-output">Result will appear here.</pre>
+  </section>
+
+  <section class="card">
+    <h2>Extract fields <span class="tag">POST /extract</span></h2>
+    <p class="hint">Extracts structured fields from document text. Leave doc type blank to auto-route.</p>
+    <label>Document text</label>
+    <textarea id="extract-text">INVOICE #A-1042
+Date: 2024-03-15
+Vendor: Acme Supplies Inc.
+Amount Due: $482.10
+Due Date: 2024-04-14</textarea>
+    <label>Document type (optional)</label>
+    <input type="text" id="extract-doctype" placeholder="e.g. invoice" />
+    <button id="extract-btn">Extract</button>
+    <pre class="output" id="extract-output">Result will appear here.</pre>
+  </section>
+
+  <section class="card">
+    <h2>Ask a tax question <span class="tag">POST /research</span></h2>
+    <p class="hint">Grounded Q&amp;A over the knowledge base. Declines to answer rather than fabricate.</p>
+    <label>Question</label>
+    <input type="text" id="research-q" value="What is the deduction limit for business meals?" />
+    <div class="row">
+      <div>
+        <label>Retrieval mode</label>
+        <select id="research-mode">
+          <option value="dense" selected>dense</option>
+          <option value="bm25">bm25</option>
+          <option value="hybrid">hybrid</option>
+        </select>
+      </div>
+      <div>
+        <label>Top K</label>
+        <input type="text" id="research-topk" value="4" />
+      </div>
+    </div>
+    <button id="research-btn">Ask</button>
+    <pre class="output" id="research-output">Result will appear here.</pre>
+  </section>
+
+</main>
+
+<script>
+  const API_BASE = "";
+
+  async function callApi(method, path, body) {
+    const opts = { method, headers: { "Content-Type": "application/json" } };
+    if (body !== undefined) opts.body = JSON.stringify(body);
+    const res = await fetch(API_BASE + path, opts);
+    const text = await res.text();
+    let parsed;
+    try { parsed = JSON.parse(text); } catch { parsed = text; }
+    if (!res.ok) {
+      const err = new Error("HTTP " + res.status);
+      err.payload = parsed;
+      throw err;
+    }
+    return parsed;
+  }
+
+  function show(el, data) {
+    el.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  }
+
+  async function withBusy(btn, fn) {
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = "Working...";
+    try { await fn(); }
+    finally { btn.disabled = false; btn.textContent = original; }
+  }
+
+  // Health check
+  async function checkHealth() {
+    const badge = document.getElementById("health-badge");
+    try {
+      const h = await callApi("GET", "/health");
+      badge.className = h.status === "ok" ? "ok" : "bad";
+      badge.textContent = `status: ${h.status} · gl_model: ${h.gl_model} · router: ${h.router_model} · llm: ${h.llm}`;
+    } catch (e) {
+      badge.className = "bad";
+      badge.textContent = "API unreachable";
+    }
+  }
+  checkHealth();
+
+  // Categorize
+  const catThreshold = document.getElementById("cat-threshold");
+  const catThresholdVal = document.getElementById("cat-threshold-val");
+  catThreshold.addEventListener("input", () => {
+    catThresholdVal.textContent = parseFloat(catThreshold.value).toFixed(2);
+  });
+
+  document.getElementById("cat-btn").addEventListener("click", () => {
+    const btn = document.getElementById("cat-btn");
+    const out = document.getElementById("cat-output");
+    withBusy(btn, async () => {
+      try {
+        const memo = document.getElementById("cat-memo").value;
+        const threshold = parseFloat(catThreshold.value);
+        const data = await callApi("POST", "/categorize", { memo, threshold });
+        show(out, data);
+      } catch (e) {
+        show(out, e.payload || e.message);
+      }
+    });
+  });
+
+  // Batch categorize
+  document.getElementById("batch-btn").addEventListener("click", () => {
+    const btn = document.getElementById("batch-btn");
+    const out = document.getElementById("batch-output");
+    withBusy(btn, async () => {
+      try {
+        const memos = document.getElementById("batch-memos").value
+          .split("\n").map(s => s.trim()).filter(Boolean);
+        const data = await callApi("POST", "/categorize/batch?threshold=0.7", memos);
+        show(out, data);
+      } catch (e) {
+        show(out, e.payload || e.message);
+      }
+    });
+  });
+
+  // Extract
+  document.getElementById("extract-btn").addEventListener("click", () => {
+    const btn = document.getElementById("extract-btn");
+    const out = document.getElementById("extract-output");
+    withBusy(btn, async () => {
+      try {
+        const text = document.getElementById("extract-text").value;
+        const doc_type = document.getElementById("extract-doctype").value.trim() || null;
+        const data = await callApi("POST", "/extract", { text, doc_type });
+        show(out, data);
+      } catch (e) {
+        show(out, e.payload || e.message);
+      }
+    });
+  });
+
+  // Research
+  document.getElementById("research-btn").addEventListener("click", () => {
+    const btn = document.getElementById("research-btn");
+    const out = document.getElementById("research-output");
+    withBusy(btn, async () => {
+      try {
+        const question = document.getElementById("research-q").value;
+        const mode = document.getElementById("research-mode").value;
+        const top_k = parseInt(document.getElementById("research-topk").value, 10) || 4;
+        const data = await callApi("POST", "/research", { question, mode, top_k });
+        show(out, data);
+      } catch (e) {
+        show(out, e.payload || e.message);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
