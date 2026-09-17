@@ -1,0 +1,98 @@
+[
+  {
+    "level": "clean",
+    "overall": 0.9889,
+    "per_field": {
+      "1099_nec.nonemployee_compensation": 1.0,
+      "bank_statement.closing_balance": 0.8,
+      "bank_statement.opening_balance": 1.0,
+      "engagement_letter.engagement_fee": 1.0,
+      "invoice.document_number": 1.0,
+      "invoice.due_date": 1.0,
+      "invoice.issue_date": 1.0,
+      "invoice.subtotal": 1.0,
+      "invoice.total_amount": 1.0,
+      "purchase_order.document_number": 1.0,
+      "purchase_order.issue_date": 1.0,
+      "purchase_order.total_amount": 1.0,
+      "receipt.document_number": 1.0,
+      "receipt.issue_date": 1.0,
+      "receipt.subtotal": 1.0,
+      "receipt.total_amount": 1.0,
+      "w2.federal_tax_withheld": 1.0,
+      "w2.wages": 1.0
+    }
+  },
+  {
+    "level": "light",
+    "overall": 0.8386,
+    "per_field": {
+      "1099_nec.nonemployee_compensation": 0.6,
+      "bank_statement.closing_balance": 0.7,
+      "bank_statement.opening_balance": 0.855,
+      "engagement_letter.engagement_fee": 0.81,
+      "invoice.document_number": 0.83,
+      "invoice.due_date": 0.93,
+      "invoice.issue_date": 0.955,
+      "invoice.subtotal": 0.91,
+      "invoice.total_amount": 0.895,
+      "purchase_order.document_number": 0.83,
+      "purchase_order.issue_date": 0.965,
+      "purchase_order.total_amount": 0.86,
+      "receipt.document_number": 0.86,
+      "receipt.issue_date": 0.94,
+      "receipt.subtotal": 0.88,
+      "receipt.total_amount": 0.92,
+      "w2.federal_tax_withheld": 0.665,
+      "w2.wages": 0.69
+    }
+  },
+  {
+    "level": "medium",
+    "overall": 0.5614,
+    "per_field": {
+      "1099_nec.nonemployee_compensation": 0.185,
+      "bank_statement.closing_balance": 0.385,
+      "bank_statement.opening_balance": 0.6,
+      "engagement_letter.engagement_fee": 0.42,
+      "invoice.document_number": 0.56,
+      "invoice.due_date": 0.745,
+      "invoice.issue_date": 0.835,
+      "invoice.subtotal": 0.665,
+      "invoice.total_amount": 0.56,
+      "purchase_order.document_number": 0.55,
+      "purchase_order.issue_date": 0.82,
+      "purchase_order.total_amount": 0.6,
+      "receipt.document_number": 0.635,
+      "receipt.issue_date": 0.83,
+      "receipt.subtotal": 0.645,
+      "receipt.total_amount": 0.63,
+      "w2.federal_tax_withheld": 0.185,
+      "w2.wages": 0.255
+    }
+  },
+  {
+    "level": "heavy",
+    "overall": 0.3281,
+    "per_field": {
+      "1099_nec.nonemployee_compensation": 0.015,
+      "bank_statement.closing_balance": 0.175,
+      "bank_statement.opening_balance": 0.31,
+      "engagement_letter.engagement_fee": 0.115,
+      "invoice.document_number": 0.26,
+      "invoice.due_date": 0.53,
+      "invoice.issue_date": 0.61,
+      "invoice.subtotal": 0.37,
+      "invoice.total_amount": 0.34,
+      "purchase_order.document_number": 0.275,
+      "purchase_order.issue_date": 0.645,
+      "purchase_order.total_amount": 0.385,
+      "receipt.document_number": 0.35,
+      "receipt.issue_date": 0.665,
+      "receipt.subtotal": 0.36,
+      "receipt.total_amount": 0.42,
+      "w2.federal_tax_withheld": 0.03,
+      "w2.wages": 0.05
+    }
+  }
+]

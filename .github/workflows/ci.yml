@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Generate datasets
+        run: |
+          python -m src.common.synth
+          python -m src.common.ledger
+      - name: Run tests
+        run: pytest tests/ -v
+
+  model-quality-gate:
+    name: Model quality gate
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Generate datasets
+        run: |
+          python -m src.common.synth
+          python -m src.common.ledger
+
+      # The point of this job: a model that regresses below an agreed
+      # bar should fail the build like any other broken test. Metrics
+      # that are only ever read in a notebook don't protect anything.
+      - name: Enforce quality thresholds
+        run: python -m scripts.quality_gate
+
+      - name: Upload metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-metrics
+          path: artifacts/*.json
+          retention-days: 30
+
+  docker:
+    name: Build container
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t acctintel:${{ github.sha }} .
+      - name: Smoke test the container
+        run: |
+          docker run -d --name acctintel -p 8000:8000 acctintel:${{ github.sha }}
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then echo "healthy"; exit 0; fi
+            sleep 2
+          done
+          echo "container failed to become healthy"
+          docker logs acctintel
+          exit 1

@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Regenerable: `python -m scripts.train_all` rebuilds both.
+data/*.jsonl
+artifacts/*.joblib
+
+# Metrics JSON is kept in version control on purpose - it's the record
+# of how the model performed, and diffing it across commits shows
+# regressions at review time.
+!artifacts/*_metrics.json
+.DS_Store

@@ -1,0 +1,29 @@
+[
+  {
+    "mode": "bm25",
+    "k": 3,
+    "recall@3": 0.8947,
+    "hit@1": 0.7895,
+    "mrr": 0.8333,
+    "recall@3_exact": 1.0,
+    "recall@3_paraphrase": 0.8182
+  },
+  {
+    "mode": "dense",
+    "k": 3,
+    "recall@3": 1.0,
+    "hit@1": 0.8158,
+    "mrr": 0.8991,
+    "recall@3_exact": 1.0,
+    "recall@3_paraphrase": 1.0
+  },
+  {
+    "mode": "hybrid",
+    "k": 3,
+    "recall@3": 0.9474,
+    "hit@1": 0.8158,
+    "mrr": 0.8728,
+    "recall@3_exact": 1.0,
+    "recall@3_paraphrase": 0.9091
+  }
+]
